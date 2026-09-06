@@ -1,0 +1,52 @@
+{
+  "servo_names": [
+    "Eye Pan",
+    "Eye Tilt",
+    "Upper Eyelid",
+    "Lower Eyelid",
+    "Eyebrow Inner",
+    "Eyebrow Outer"
+  ],
+  "patterns": {
+    "Saccade": {
+      "description": "Quick eye movements between positions",
+      "duration": 3.0
+    },
+    "Tracking": {
+      "description": "Smooth eye tracking motion",
+      "duration": 5.0
+    },
+    "Blink": {
+      "description": "Single blink",
+      "duration": 0.5
+    },
+    "Blink Rapid": {
+      "description": "Multiple rapid blinks",
+      "duration": 2.0
+    },
+    "Look Left": {
+      "description": "Look to the left",
+      "duration": 2.0
+    },
+    "Look Right": {
+      "description": "Look to the right",
+      "duration": 2.0
+    },
+    "Look Up": {
+      "description": "Look up",
+      "duration": 2.0
+    },
+    "Look Down": {
+      "description": "Look down",
+      "duration": 2.0
+    },
+    "Circle": {
+      "description": "Circular eye movement",
+      "duration": 4.0
+    },
+    "Dizzy": {
+      "description": "Dizzy spinning eyes",
+      "duration": 3.0
+    }
+  }
+}

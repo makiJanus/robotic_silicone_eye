@@ -1,0 +1,89 @@
+{
+  "servo_names": [
+    "Eye Pan",
+    "Eye Tilt",
+    "Upper Eyelid",
+    "Lower Eyelid",
+    "Eyebrow Inner",
+    "Eyebrow Outer"
+  ],
+  "expressions": {
+    "Neutral": {
+      "servo_angles": {
+        "0": 90,
+        "1": 90,
+        "2": 90,
+        "3": 90,
+        "4": 90,
+        "5": 90
+      },
+      "timestamp": "default"
+    },
+    "Happy": {
+      "servo_angles": {
+        "0": 90,
+        "1": 85,
+        "2": 70,
+        "3": 110,
+        "4": 80,
+        "5": 75
+      },
+      "timestamp": "default"
+    },
+    "Sad": {
+      "servo_angles": {
+        "0": 90,
+        "1": 95,
+        "2": 110,
+        "3": 70,
+        "4": 100,
+        "5": 105
+      },
+      "timestamp": "default"
+    },
+    "Angry": {
+      "servo_angles": {
+        "0": 90,
+        "1": 90,
+        "2": 70,
+        "3": 90,
+        "4": 60,
+        "5": 55
+      },
+      "timestamp": "default"
+    },
+    "Surprised": {
+      "servo_angles": {
+        "0": 90,
+        "1": 90,
+        "2": 50,
+        "3": 130,
+        "4": 100,
+        "5": 100
+      },
+      "timestamp": "default"
+    },
+    "Suspicious": {
+      "servo_angles": {
+        "0": 70,
+        "1": 90,
+        "2": 80,
+        "3": 80,
+        "4": 85,
+        "5": 85
+      },
+      "timestamp": "default"
+    },
+    "Sleepy": {
+      "servo_angles": {
+        "0": 90,
+        "1": 95,
+        "2": 140,
+        "3": 50,
+        "4": 95,
+        "5": 95
+      },
+      "timestamp": "default"
+    }
+  }
+}

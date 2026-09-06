@@ -1,0 +1,14 @@
+# Core dependencies
+gradio==4.8.0
+huggingface_hub==0.19.4
+
+# Serial communication
+pyserial==3.5
+
+# Numerical and plotting
+numpy==1.24.3
+plotly==5.18.0
+
+# Optional audio dependencies (uncomment if needed)
+# sounddevice==0.4.6
+# soundfile==0.12.1
