@@ -1,6 +1,6 @@
 # 👁️👁️ Robot Eye Control System
 
-A complete control system for dual animatronic robot eyes — 6 servos per eye (12 total). Includes real-time control, per-axis mirror calibration, expression presets, autonomous movement patterns, and a webcam face tracker with random blinking.
+A complete control system for dual animatronic robot eyes — 6 servos per eye (12 total). Includes real-time control, per-axis mirror calibration, expression presets, autonomous movement patterns, a webcam face tracker with random blinking, and an autonomous wander demo that feels alive.
 
 ## 📋 Table of Contents
 
@@ -10,6 +10,7 @@ A complete control system for dual animatronic robot eyes — 6 servos per eye (
 - [🚀 Quick Start](#-quick-start)
 - [📖 Usage Guide](#-usage-guide)
 - [🎥 Face Tracker](#-face-tracker)
+- [🎬 Wander Demo](#-wander-demo)
 - [📁 File Structure](#-file-structure)
 - [⚙️ Calibration Data](#️-calibration-data)
 - [🔧 Troubleshooting](#-troubleshooting)
@@ -31,6 +32,7 @@ A complete control system for dual animatronic robot eyes — 6 servos per eye (
 - **Autonomous patterns** — Saccade, Tracking, Blink, Blink Rapid, Look L/R/U/D, Circle, Dizzy
 - **Dedicated Offsets tab** — live per-servo offset tuning
 - **Face tracker** — webcam-driven eye movement with random blinking (uses the same calibration)
+- **Wander demo** — autonomous "alive" behavior: wandering gaze + cycling expressions + random blinks, all at once
 - **Responsive UI** — mobile-friendly, custom touch-friendly sliders
 - **Persistent config** — calibration, mirror config, gains, expressions and patterns all saved to JSON
 
@@ -170,7 +172,7 @@ Recommended order for a fresh setup:
    - If the left eye sweeps a different amount → adjust that axis's Gain slider
    - Use 🧪 **Test gain on this axis** for a smooth ±25° sweep on a single axis
    - Click 💾 **Save mirror config** to persist
-4. 🎭 **Expressions tab** → click ♻️ **Regenerate Defaults** to rebuild expressions with the new mirror config.
+4. 🎭 **Expressions tab** → click ♻️ **Regenerate Defaults** to rebuild expressions with the new mirror config
 
 ## 📖 Usage Guide
 
@@ -290,12 +292,130 @@ The face tracker pulls the following from `eye_calibration.json`:
 
 > **Note on eyelids:** the tracker uses its own `DEFAULT_UPPER_OPEN / LOWER_OPEN / UPPER_CLOSED / LOWER_CLOSED` constants (module-level, overridable via CLI) rather than the eyelid neutrals from the calibration file — this is intentional so blinks match the Blink pattern in `eye_system.py`.
 
+## 🎬 Wander Demo
+
+`demo.py` makes the eyes look alive — wandering gaze, cycling expressions, and random blinks, all running at the same time. No interaction needed; it just runs.
+
+### Run
+
+```bash
+python demo.py --port COM3
+```
+
+Press `Ctrl+C` to stop. The robot returns to rest on exit.
+
+### Options
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--port` | (required) | Serial port |
+| `--max-pan` | `25.0` | Max pan offset from neutral for wandering |
+| `--max-tilt` | `18.0` | Max tilt offset |
+| `--blink-min` | `1.5` | Min seconds between blinks |
+| `--blink-max` | `4.0` | Max seconds between blinks |
+| `--expression-interval` | `8.0` | Average seconds between expression changes |
+| `--bias-weight` | `0.3` | How much expressions pull pan/tilt (0–1) |
+| `--rate` | `30.0` | Update rate in Hz |
+
+### Presets
+
+```bash
+# Default: medium wander, ~8 s expression changes
+python demo.py --port COM3
+
+# Wide, expressive: bigger gaze, faster changes
+python demo.py --port COM3 --max-pan 35 --max-tilt 24 --expression-interval 6
+
+# Calm / contemplative: small gaze, long dwells
+python demo.py --port COM3 --max-pan 15 --expression-interval 12
+
+# Hyperactive: fast reactions, high rate
+python demo.py --port COM3 --rate 60 --max-pan 30 --expression-interval 5
+```
+
+### How It Works
+
+Three independent engines run in parallel; their outputs are merged every tick:
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  WANDER ENGINE         → pan_offset, tilt_offset             │
+│  (saccades, holds,     → owns pan/tilt base                  │
+│   micro-jitter)                                               │
+├──────────────────────────────────────────────────────────────┤
+│  EXPRESSION ENGINE     → 6-axis pose, name                   │
+│  (random picker +      → brows fully; small pan/tilt bias    │
+│   ease-in transitions) → eyelid deltas                       │
+├──────────────────────────────────────────────────────────────┤
+│  BLINK ENGINE          → blink_amount (0..1)                 │
+│  (random + optional    → pulls eyelids toward closed         │
+│   double-blink)        → frequency scaled per expression     │
+└──────────────────────────────────────────────────────────────┘
+                          ↓
+                   Compose per tick
+                          ↓
+        mirror_right_to_left(...) → send_batch_command(...)
+```
+
+Per tick:
+
+```text
+pan      = neutral_pan  + wander_pan  + expr_pan_bias × bias_weight
+tilt     = neutral_tilt + wander_tilt + expr_tilt_bias × bias_weight
+
+upper_lid = neutral_upper + (expr_upper − 90) × eyelid_weight
+            ↳ blink pulls toward 90 (never overshoots)
+lower_lid = neutral_lower + (expr_lower − 90) × eyelid_weight
+            ↳ blink pulls toward 90 (never overshoots)
+
+brow_in   = expr_brow_in     (expression drives brows fully)
+brow_out  = expr_brow_out
+```
+
+### Key Design Points
+
+- **Ease-in expression transitions** — expressions blend over ~0.5 s with t² easing; no abrupt jumps.
+- **Blink respects expressions** — if the current expression is Sleepy (lids already closed), blinks don't punch past closed. The blink interpolates from the expression's pose toward the closed pose, not from wide-open.
+- **Per-expression blink frequency** — Sleepy blinks ×2, Surprised blinks ×0.6, etc. (tunable in `BLINK_FREQ_MULT` at the top of `demo.py`).
+- **Micro-saccades during holds** — tiny ±1.5° jitter between big saccades makes the eye feel alive.
+- **Double-blinks** — 15% chance a blink is followed by a second one 100–220 ms later.
+- **No return to neutral** — the expression engine blends directly from current → new; feels more natural than passing through Neutral.
+
+### Tuning Cheat Sheet
+
+Most knobs live in the `TUNABLES` section at the top of `demo.py`:
+
+| Want… | Change |
+|---|---|
+| Snappier saccades | Lower `WANDER_SACCADE_MAX` to 0.10 |
+| Longer dwell between jumps | Raise `WANDER_IDLE_MIN / MAX` |
+| More "shifty" eyes | Raise `JITTER_PAN` to 2.5 |
+| Calmer eyes | Raise `WANDER_IDLE_MIN` to 2.5 |
+| Blinks feel too frequent | Raise `--blink-min` / `--blink-max` |
+| Expressions change too often | Raise `--expression-interval` |
+| Expressions barely affect the eyes | Raise `--bias-weight` (e.g. 0.5) |
+| Less cross-talk wander vs. expression | Lower `--bias-weight` |
+| Saccades look choppy | Raise `--rate` (e.g. 60) |
+
+### Calibration Used by the Demo
+
+Same as the face tracker:
+
+| Setting | Used? |
+|---|---|
+| Pan/Tilt/Brow neutrals | ✅ |
+| Offsets (all 12) | ✅ |
+| Mirror flip (per axis) | ✅ |
+| Mirror gains (per axis) | ✅ |
+| Eyelid neutrals | ⚠️ used as baseline; expression eyelid values are applied as deltas from 90, so tune `EXPR_EYELID_REF` / `EXPR_EYELID_WEIGHT` if your calibration drifts far from 90 |
+
 ## 📁 File Structure
 
 ```text
 eye_control_system/
 ├── eye_system.py           # Main Gradio application
 ├── face_tracker.py         # Webcam face tracker with random blinks
+├── demo.py                 # Autonomous "alive" wander demo
 ├── eye.ino                 # Arduino firmware (PCA9685 driver)
 ├── requirements.txt        # Python dependencies
 ├── README.md               # This file
@@ -307,7 +427,7 @@ eye_control_system/
 
 ## ⚙️ Calibration Data
 
-`eye_calibration.json` is the single source of truth for the whole system — both the app and the face tracker read it on startup.
+`eye_calibration.json` is the single source of truth for the whole system — the app, the face tracker, and the wander demo all read it on startup.
 
 ```json
 {
@@ -352,7 +472,7 @@ pip install "huggingface_hub>=0.23,<0.27"
 
 ### `TypeError: __init__() got an unexpected keyword argument 'scale' on gr.Markdown`
 
-You're on Gradio 4.x — `gr.Markdown` doesn't accept `scale`. Wrap it in a `gr.Column(scale=N)` instead, or remove `scale=`.
+You're on Gradio 4.x — `gr.Markdown` doesn't accept scale. Wrap it in a `gr.Column(scale=N)` instead, or remove `scale=`.
 
 ### `TypeError: launch() got an unexpected keyword argument 'theme'`
 
@@ -361,6 +481,10 @@ You're on Gradio 4.x or 5.x — theme and css belong on `gr.Blocks(...)`, not on
 ### `AttributeError: 'EyeController' object has no attribute 'save_calibration'`
 
 Your `eye_system.py` is missing the `save_calibration` method. Restore it inside the `EyeController` class.
+
+### `AttributeError: 'BlinkEngine' object has no attribute '_freq_mult'`
+
+Ordering bug — `_freq_mult` must be set before `_random_interval()` is called in `BlinkEngine.__init__`. Move the `_freq_mult = 1.0` initialization above the `_next_blink` assignment.
 
 ### Saved gains don't persist / second save silently fails on Windows
 
@@ -420,10 +544,11 @@ pip install -r requirements.txt
 
 - **Batch protocol** — all 12 servos are updated in a single `P,...` serial command
 - **Change detection** — the UI skips serial writes when nothing moved by ≥ 1°
-- **Background threads** — patterns and the face tracker run off the UI thread
+- **Background threads** — patterns, face tracker, and demo engines run off the UI thread
 - **Multi-touch** — sliders don't block each other
 - **Smoothing (`--smoothing`)** — tune the tracker's EMA to trade latency for smoothness
 - **Offset cache** — offsets are applied in memory before serializing, no extra round-trips
+- **Tick rate (`--rate`)** — the wander demo defaults to 30 Hz; raise to 60 Hz if saccades look choppy on your hardware
 
 ## 🔄 Expanding / Modifying
 
@@ -445,13 +570,22 @@ Add it to `_default_patterns()` (description) and to the dispatch dict in `_patt
 
 Just save it from the UI, or add it to `right_eyes` in `_default_expressions()` (left eye is auto-mirrored).
 
-### Multiple Eyes / More Axes
+### Tweak the Demo's Personality
 
-Because the mirror math is generic per-axis, extending to extra eyeballs or extra axes only requires:
+All the "feel" constants are grouped at the top of `demo.py` under `# TUNABLES`:
 
-- Extending `SERVO_NAMES` and `NUM_SERVOS`
-- Extending `mirror_axes` / `mirror_gains` arrays
-- Updating `eye.ino`'s `SERVO_CHANNELS` to match the new channel order
+- `WANDER_*` — saccade timing, dwell durations
+- `JITTER_*` — micro-saccade amplitude and frequency
+- `BLINK_*` — blink close/hold/open timings
+- `BLINK_FREQ_MULT` — per-expression blink frequency
+- `EXPR_TRANSITION` — expression blend duration
+- `EXPR_EYELID_REF / EXPR_EYELID_WEIGHT` — how expression eyelids map onto calibration
+
+The CLI exposes only the 8 most frequently changed knobs.
+
+### Combine Tracker + Demo (Future Idea)
+
+The wander engine in `demo.py` is a drop-in candidate to be swapped for a face-aware wander engine: when a face is detected, follow it; when not, fall back to wandering. Since all three engines write to independent variables and are composed in `run_tick`, this is a localized change.
 
 ## 📝 License
 
