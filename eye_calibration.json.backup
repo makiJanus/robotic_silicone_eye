@@ -1,0 +1,61 @@
+{
+  "initial_positions": [
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90
+  ],
+  "offsets": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -18.0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "mirror_axes": [
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "mirror_gains": [
+    1.0,
+    1.0,
+    0.85,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "servo_names": [
+    "R Eye Pan",
+    "R Eye Tilt",
+    "R Upper Eyelid",
+    "R Lower Eyelid",
+    "R Eyebrow Inner",
+    "R Eyebrow Outer",
+    "L Eye Pan",
+    "L Eye Tilt",
+    "L Upper Eyelid",
+    "L Lower Eyelid",
+    "L Eyebrow Inner",
+    "L Eyebrow Outer"
+  ],
+  "timestamp": "2026-09-10 20:06:18"
+}
