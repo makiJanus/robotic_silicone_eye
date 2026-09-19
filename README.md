@@ -2,6 +2,13 @@
 
 A complete control system for dual animatronic robot eyes — 6 servos per eye (12 total). Includes real-time control, per-axis mirror calibration, expression presets, autonomous movement patterns, a webcam face tracker with random blinking, and an autonomous wander demo that feels alive.
 
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=__ouPA_gdw8&lc=Ugzf3y8tP4HDcznU-kN4AaABAg" target="_blank">
+    <img src="media/thumb_b.jpg" alt="Watch the video" width="80%">
+  </a>
+  <p><em>Click the image to watch the demo video</em></p>
+</div>
+
 ## 📋 Table of Contents
 
 - [✨ Features](#-features)
@@ -175,6 +182,11 @@ Recommended order for a fresh setup:
 4. 🎭 **Expressions tab** → click ♻️ **Regenerate Defaults** to rebuild expressions with the new mirror config
 
 ## 📖 Usage Guide
+
+<div align="center">
+    <img src="media/build_a.png" alt="Watch the video" width="80%">
+</div>
+
 
 ### 🔌 Connection
 
@@ -459,6 +471,62 @@ left_angle  = clamp(left_neutral[i] + delta, 0, 180)
 - `mirror_gains` — sweep scaling per axis (used only on the left eye)
 
 The file is written with `os.replace` (atomic on Windows and Linux), so backups (`*.json.backup`) are safe to overwrite on every save.
+
+## 📁 CAD Files
+
+You can download the cad files on Fusion360 and Step formats on this link:
+<div align="center">
+  <img src="media/cad.png" alt="Emotion Visualizer" width="80%">
+</div>
+
+### Eye Left
+- [Fusion 360 Archive (.f3d)](https://drive.google.com/file/d/1sPjkrsWElwknj-bEWVMCnOmQxAXvLe6D/view?usp=sharing)
+- [STEP File (.step)](https://drive.google.com/file/d/1brXJCzBTI_8S5b5Gdz2TChhcHL2v2E58/view?usp=sharing)
+
+### Eye Right
+- [Mold Fusion 360 (.f3d)](https://drive.google.com/file/d/1zNk5UFjyafX2VUT7yIcKwBQZY1irVLjd/view?usp=sharing)
+- [Mold STEP File (.step)](https://drive.google.com/file/d/1LCd8bpS2u_AIFLCp0Ksmfnem69Cgfole/view?usp=sharing)
+
+### Mold
+- [Mold Fusion 360 (.f3d)](https://drive.google.com/file/d/1-iyC8ygJUOypd4tcz0lyhWBCPZDkuMqf/view?usp=sharing)
+- [Mold STEP File (.step)](https://drive.google.com/file/d/122887qXR6liP_XLuxUf3ikimA066I-pq/view?usp=sharing)
+
+### Support
+- [Mold Fusion 360 (.f3d)](https://drive.google.com/file/d/1KIUX7daLbmSGbM61Y7DuquAxZn_WgxXi/view?usp=sharing)
+- [Mold STEP File (.step)](https://drive.google.com/file/d/1tx2MDzFTQaWjOZ53SIb17_PjQfeoTO7M/view?usp=sharing)
+---
+
+## 📦 Materials List
+
+| Component | Quantity | Notes |
+|-----------|----------|-------|
+| **Servos** | | |
+| SG90 Micro Servo | 6/12 | For one/two eyes |
+| **Screws & Hardware** | | |
+| M3 Screws | Various | Lengths: 6mm, 8mm, 10mm |
+| M4 Screws | Various | Lengths: 10mm, 12mm, 16mm |
+| M3 Nuts | Various |  |
+| M4 Nuts | Various |  |
+| **Electronics** | | |
+| Webcam | 1 |  |
+| Arduino Nano | 1 | Microcontroller |
+| PCA9685 Servo Driver | 1 | 16-channel PWM driver |
+| 5x7cm Perforated PCB | 1 | For soldering components |
+| On-Off button | 1 | 16mm diamater |
+| Screw Terminal Block |  | The 2 inputs one |
+| 5-6V Power Supply | 1 | 2A+ for all servos |
+| USB 2.0 Cable | 1 | For Arduino |
+| **3D Printing** | | |
+| PLA Filament | 1 kg | Any color |
+| **Tools** | | |
+| Soldering Iron | 1 | With fine tip |
+| Solder | 1 | 0.8mm-1.0mm |
+| Wire Cutters | 1 | |
+| Screwdriver Set | 1 | Phillips & Flathead |
+| Silicone Solution A+B | 1 (Pair) | 5A Shore |
+
+---
+
 
 ## 🔧 Troubleshooting
 
