@@ -27,6 +27,26 @@ A complete control system for dual animatronic robot eyes — 6 servos per eye (
 - [🤝 Contributing](#-contributing)
 - [📧 Support](#-support)
 
+## 📝 Project Overview
+
+This project provides a complete system for controlling dual animatronic robot eyes with realistic movement patterns and expressions. The system includes both hardware control and software components that work together to create lifelike eye behavior.
+
+## ✨ Features
+
+- **Dual-eye control** — 12 servos (6 per eye: pan, tilt, upper lid, lower lid, brow inner, brow outer)
+- **Real-time control** — all 12 sliders work simultaneously with multi-touch support
+- **Per-axis mirror calibration** — configure for each axis:
+  - Flip (physically mirrored servos)
+  - Gain (compensate for mechanical sweep mismatch: left = neutral + flip(delta) × gain)
+- **Fast serial protocol** — one batch command updates all 12 servos (~2 ms)
+- **Expression presets** — Happy, Sad, Angry, Surprised, Suspicious, Sleepy, Neutral
+- **Autonomous patterns** — Saccade, Tracking, Blink, Blink Rapid, Look L/R/U/D, Circle, Dizzy
+- **Dedicated Offsets tab** — live per-servo offset tuning
+- **Face tracker** — webcam-driven eye movement with random blinking (uses the same calibration)
+- **Wander demo** — autonomous "alive" behavior: wandering gaze + cycling expressions + random blinks, all at once
+- **Responsive UI** — mobile-friendly, custom touch-friendly sliders
+- **Persistent config** — calibration, mirror config, gains, expressions and patterns all saved to JSON
+
 ## ✨ Features
 
 - **Dual-eye control** — 12 servos (6 per eye: pan, tilt, upper lid, lower lid, brow inner, brow outer)
@@ -133,6 +153,14 @@ opencv-python
 ```
 
 Gradio is pinned to 4.x for Python 3.9 compatibility (Gradio 5/6 require Python 3.10+). On newer Python, you can use Gradio 6 but must move theme= and css= from gr.Blocks(...) to demo.launch(...).
+
+## 🚀 Quick Start Guide
+
+1. **Set up Python Environment**: Create and activate your Python environment using either conda or venv.
+2. **Install Dependencies**: Run `pip install -r requirements.txt` to install all required packages.
+3. **Upload Arduino Code**: Open `eye.ino` in the Arduino IDE, select your board and port, then upload the sketch.
+4. **Run the Application**: Execute `python eye_system.py` to start the control interface.
+5. **Access the UI**: Open your browser and navigate to `http://localhost:7860` to access the control panel.
 
 ## 🚀 Quick Start
 
@@ -668,3 +696,13 @@ Contributions are welcome! Please open a Pull Request or file an issue.
 - Check the Troubleshooting section first
 - Open an issue on GitHub with the full console output and the contents of `eye_calibration.json` (feel free to redact timestamps)
 - Confirm your Python version (`python --version`), Gradio version (`pip show gradio`), and OS
+
+## 🙏 Acknowledgements
+
+This project was inspired by various animatronic eye control systems and aims to provide an accessible, open-source solution for creating lifelike robot eyes. Special thanks to the open-source community for their contributions to Python, Arduino, and computer vision libraries.
+
+## 📚 References
+
+- [Gradio Documentation](https://gradio.app/)
+- [Arduino PCA9685 Library](https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library)
+- [OpenCV Haar Cascades](https://docs.opencv.org/4.x/db/d28/tutorial_cascade_classifier.html)
